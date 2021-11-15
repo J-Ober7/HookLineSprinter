@@ -26,12 +26,16 @@ public class HookThrower : MonoBehaviour
     public float Hookjump_Min_Time;
 
     public GameObject fishingRod;
+    public GameObject reel;
+    public float reelSpeed = 5f;
 
     public bool isHooking = false;
 
     public GameObject hookedTo;
 
     public float hookLifeTime = 0;
+
+    public PhysicMaterial playerPhysMat;
 
     void Awake()
     {
@@ -48,6 +52,8 @@ public class HookThrower : MonoBehaviour
 
     void Update()
     {
+
+
         if (Input.GetMouseButtonDown(0))
         {
             if (!isHooking)
@@ -64,6 +70,12 @@ public class HookThrower : MonoBehaviour
         {
             hookLifeTime += Time.deltaTime;
             ReelInOverTime();
+
+            if (hookedTo == null)
+            {
+                StopGrapple();
+            }
+
         }
 
         
@@ -92,6 +104,10 @@ public class HookThrower : MonoBehaviour
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = grapplePoint;
 
+            player.GetComponent<CapsuleCollider>().material = playerPhysMat;
+
+            
+
             float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
 
             //The distance grapple will try to keep from grapple point. 
@@ -105,6 +121,11 @@ public class HookThrower : MonoBehaviour
 
             lr.positionCount = 2;
             currentGrapplePosition = gunTip.position;
+            hook.layer = LayerMask.NameToLayer("Ungrapplable");
+            gameObject.layer = LayerMask.NameToLayer("Ungrapplable");
+            transform.parent.gameObject.layer = LayerMask.NameToLayer("Ungrapplable");
+            reel.transform.GetChild(0).gameObject.layer = LayerMask.NameToLayer("Ungrapplable");
+
         }
     }
 
@@ -114,6 +135,8 @@ public class HookThrower : MonoBehaviour
     {
         joint.maxDistance = Mathf.Lerp(joint.maxDistance, joint.minDistance, Time.deltaTime * reelInSpeed);
         joint.spring = Mathf.Lerp(joint.spring, maxSpringForce, Time.deltaTime * 2f);
+
+        reel.transform.Rotate(Vector3.up, reelSpeed);
     }
 
 
@@ -130,6 +153,12 @@ public class HookThrower : MonoBehaviour
             lr.positionCount = 0;
             Destroy(joint);
             hookLifeTime = 0;
+            hook.layer = LayerMask.NameToLayer("HandsRenderLayer");
+            gameObject.layer = LayerMask.NameToLayer("HandsRenderLayer");
+            transform.parent.gameObject.layer = LayerMask.NameToLayer("HandsRenderLayer");
+            reel.layer = LayerMask.NameToLayer("HandsRenderLayer");
+            reel.transform.GetChild(0).gameObject.layer = LayerMask.NameToLayer("HandsRenderLayer");
+            player.GetComponent<CapsuleCollider>().material = null;
         }
     }
 

@@ -8,25 +8,61 @@ using UnityEngine;
  */
 public class KillPlaneBehavior : MonoBehaviour
 {
-    Transform checkpoint;
+    public Transform checkpoint;
     GameObject player;
     Rigidbody rb;
     public HookThrower hook;
+    public bool fastRespawn;
+    public GameObject deathScreen;
+    private Collider playerCollider;
 
+    private bool gamePaused;
     private void Start()
     {
+        deathScreen.SetActive(false);
         player = GameObject.FindGameObjectWithTag("Player");
         checkpoint = player.transform;
         rb = player.transform.GetChild(1).GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
+        if (gamePaused)
+        {
+            if (Input.GetKey(KeyCode.R))
+            {
+                gamePaused = false;
+                Time.timeScale = 1;
+                playerReset(playerCollider);  
+                deathScreen.SetActive(false);
+            }
+        }
+    }
+
+    public void setCheckpoint(Transform newPoint)
+    {
+        checkpoint = newPoint;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.transform.parent.CompareTag("Player"))
         {
-            other.transform.position = checkpoint.transform.position;
-            rb.velocity = Vector3.zero;
-            hook.HookJumpRelease();
+            if (!gamePaused)
+            {
+                if (fastRespawn)
+                {
+                    playerReset(other);
+                }
+                else
+                {
+                    playerCollider = other;
+                    gamePaused = true;
+                    Time.timeScale = 0;
+                    deathScreen.SetActive(true);
+                }
+            }
+            
         }
         else
         {
@@ -34,4 +70,10 @@ public class KillPlaneBehavior : MonoBehaviour
         }
     }
 
+    private void playerReset(Collider player)
+    {
+        player.transform.position = checkpoint.transform.position;
+        rb.velocity = Vector3.zero;
+        hook.HookJumpRelease();
+    }
 }

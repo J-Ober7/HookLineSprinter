@@ -19,7 +19,11 @@ public class PlayerMovement : MonoBehaviour {
     
     //Movement
     public float moveSpeed = 4500;
-    public float maxSpeed = 20;
+    public float minMaxSpeed = 15f;
+    public float maxMaxSpeed = 100f;
+    public float maxSpeedIncrement = 1f;
+    float currentMaxSpeed;
+
     public bool grounded;
     public LayerMask whatIsGround;
     
@@ -32,9 +36,12 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 playerScale;
     public float crouchHeight = 0.5f;
     public float slideForce = 400;
+    private float maxSpeedTemp;
     public float slideCounterMovement = 0.2f;
     public float crouchSpeed = 100f;
     private bool crouchWalk = false;
+    private bool checkingUncrouch = false;  ///
+    private bool uncrouchBeginning = false;  ///For determining if the uncrouch invoke has started 
 
     //Jumping
     private bool readyToJump = true;
@@ -42,6 +49,7 @@ public class PlayerMovement : MonoBehaviour {
     public float jumpForce = 550f;
 
     public float extraGravityForce = 10;
+    private float currentExtraGravity;
     
     //Input
     float x, y;
@@ -71,13 +79,18 @@ public class PlayerMovement : MonoBehaviour {
         crouchScale.y = crouchHeight;
         origPolePos = hook.transform.parent.localPosition;
         gun = hook.transform.parent.parent.GetChild(1).gameObject;
+        maxSpeedTemp = maxMaxSpeed;
+        currentExtraGravity = extraGravityForce;
+
     }
 
-    
+
     private void FixedUpdate() 
     {
+        
         Movement();
-        IsCrouching();
+        Momentum();
+        Crouch();
     }
 
     private void Update() 
@@ -95,23 +108,46 @@ public class PlayerMovement : MonoBehaviour {
         x = Input.GetAxisRaw("Horizontal");
         y = Input.GetAxisRaw("Vertical");
         jumping = Input.GetButton("Jump");
-        crouching = Input.GetKey(KeyCode.LeftControl);
+        //crouching = Input.GetKey(KeyCode.LeftControl);
       
         //Crouching
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl) && grounded)
         {
+            //Debug.Log(grounded);
             StartCrouch();
             transform.position = new Vector3(transform.position.x, transform.position.y - (playerScale.y/2), transform.position.z);
+            crouching = true;
 
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftControl))
+        //Debug.Log("Uncrouch Check Logic: " + checkForUncrouchSpace());
+
+        if ((Input.GetKeyUp(KeyCode.LeftControl) && crouching) || checkingUncrouch)
         {
-            StopCrouch();
-            transform.position = new Vector3(transform.position.x, transform.position.y + (playerScale.y/2), transform.position.z);
-            crouchWalk = false;
+            if (checkForUncrouchSpace())
+            {
+                if ((Input.GetKeyUp(KeyCode.LeftControl))){
+                    StartPlayerUncrouch();
+                }
+                
+                else
+                {
+                    if (!uncrouchBeginning)
+                    {
+                        uncrouchBeginning = true;
+                        Invoke(nameof(StartPlayerUncrouch), .1f);
+                    }
+                }
+            }
+            else
+            {
+
+                checkingUncrouch = true;
+            }
+            
         }
     }
+
 
 
     /// <summary>
@@ -119,6 +155,7 @@ public class PlayerMovement : MonoBehaviour {
     /// </summary>
     private void StartCrouch() 
     {
+        
         transform.localScale = Vector3.Lerp(transform.localScale, crouchScale, crouchSpeed * Time.deltaTime);
         //transform.position = new Vector3(transform.position.x, transform.position.y -, transform.position.z);
 
@@ -129,20 +166,27 @@ public class PlayerMovement : MonoBehaviour {
 
         if (Magnitude2(rb.velocity.x, rb.velocity.z) > 0.5f) {
             if (grounded) {
+                if (currentMaxSpeed < minMaxSpeed * 2)
+                {
+                    if(minMaxSpeed * 2 < maxMaxSpeed)
+                    {
+                        currentMaxSpeed = minMaxSpeed * 2;
+                    }
+                    else
+                    {
+                        currentMaxSpeed = maxMaxSpeed;
+                    }
+                }
                 rb.AddForce(orientation.transform.forward * slideForce);
             }
         }
-        else
-        {
-            //Debug.Log(Magnitude2(rb.velocity.x, rb.velocity.z));
-            crouchWalk = true;
-        }
+
     }
 
     /// <summary>
     /// Determines if they player should being starting or stoping crouching based off input and player transform size
     /// </summary>
-    private void IsCrouching()
+    private void Crouch()
     {
         if(transform.localScale != crouchScale && crouching)
         {
@@ -152,6 +196,27 @@ public class PlayerMovement : MonoBehaviour {
         {
             StopCrouch();
         }
+
+        if(Magnitude2(rb.velocity.x, rb.velocity.z) < 0.5f && crouchWalk == false)
+        {
+            //Debug.Log(Magnitude2(rb.velocity.x, rb.velocity.z));
+            crouchWalk = true;
+        }
+    }
+
+    private bool checkForUncrouchSpace()
+    {
+        //RaycastHit hit;
+        Debug.DrawRay(transform.position, orientation.up * 3, Color.red);
+        if(Physics.Raycast(transform.position, orientation.up, 2f) )
+        {
+            Debug.DrawRay(transform.position, orientation.up, Color.blue);
+
+            Debug.Log("You hit something");
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -170,11 +235,47 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     /// <summary>
+    /// Invoked function for uncrouching the player
+    /// </summary>
+    private void StartPlayerUncrouch()
+    {
+        StopCrouch();
+        transform.position = new Vector3(transform.position.x, transform.position.y + (playerScale.y / 2), transform.position.z);
+        crouchWalk = false;
+        crouching = false;
+        checkingUncrouch = false;
+        uncrouchBeginning = false;
+    }
+
+    /// <summary>
     /// gets the magnitude of 2 values
     /// </summary>
     private double Magnitude2 (double x, double y)
     {
         return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+    }
+
+    private void Momentum()
+    {
+        if(rb.velocity.magnitude > currentMaxSpeed*0.95)
+        {
+            currentMaxSpeed = Mathf.Lerp(this.currentMaxSpeed, maxMaxSpeed, maxSpeedIncrement* Time.deltaTime);
+        }
+        else
+        {
+            currentMaxSpeed = Mathf.Lerp(this.currentMaxSpeed, minMaxSpeed, (maxSpeedIncrement/2)* Time.deltaTime);
+        }
+        Vector2 rbv = new Vector2(rb.velocity.x, rb.velocity.z);
+
+        if(grounded)
+        {
+            rb.velocity = new Vector3(Vector2.ClampMagnitude(rbv, currentMaxSpeed).x, rb.velocity.y, Vector2.ClampMagnitude(rbv, currentMaxSpeed).y);
+        }
+        else
+        {
+            rb.velocity = new Vector3(Vector2.ClampMagnitude(new Vector2(rb.velocity.x, rb.velocity.z), maxMaxSpeed).x, rb.velocity.y, Vector2.ClampMagnitude(new Vector2(rb.velocity.x, rb.velocity.z), maxMaxSpeed).y);
+        }
+
     }
 
     /// <summary>
@@ -184,8 +285,9 @@ public class PlayerMovement : MonoBehaviour {
     {
 
         //Extra gravity
-        rb.AddForce(Vector3.down * Time.deltaTime * extraGravityForce);
-        
+        rb.AddForce(Vector3.down * Time.deltaTime * currentExtraGravity);
+
+        currentExtraGravity += .5f * extraGravityForce * Time.deltaTime;
         //Find actual velocity relative to where player is looking
         Vector2 mag = FindVelRelativeToLook();
         float xMag = mag.x, yMag = mag.y;
@@ -196,15 +298,17 @@ public class PlayerMovement : MonoBehaviour {
         //If holding jump && ready to jump, then jump
         if (readyToJump && jumping) Jump();
 
-        float currentMaxSpeed;
+        
         //Set max speed
         if (crouching)
         {
-            currentMaxSpeed = this.maxSpeed/3;
+            maxMaxSpeed = maxSpeedTemp/3;
         }
         else
         {
-            currentMaxSpeed = this.maxSpeed;
+            // increment max speed over time
+
+            maxMaxSpeed = maxSpeedTemp;
         }
 
 
@@ -215,10 +319,12 @@ public class PlayerMovement : MonoBehaviour {
         //if (y > 0 && yMag > currentMaxSpeed) y = 0;
         //if (y < 0 && yMag < -currentMaxSpeed) y = 0;
 
+        /*
         if(rb.velocity.sqrMagnitude > currentMaxSpeed)
         {
             rb.velocity *= .99f;
         }
+        */
 
         //Some multipliers
         float multiplier = 1f, multiplierV = 1f;
@@ -226,8 +332,8 @@ public class PlayerMovement : MonoBehaviour {
         // Movement in air
         if (!grounded) 
         {
-            multiplier = 0.5f;
-            multiplierV = 0.5f;
+            multiplier = 0.6f;
+            multiplierV = 0.6f;
         }
 
         
@@ -272,16 +378,19 @@ public class PlayerMovement : MonoBehaviour {
             //Add jump forces
             if (!hook.isHooking)
             { 
+                //Normal Jump
                 rb.AddForce(Vector2.up * jumpForce * 1.5f);
                 rb.AddForce(normalVector * jumpForce * 0.5f);
             }
             else
             {
+                //Jumping off the hook
                 hook.HookJumpRelease();
-                rb.AddForce(Vector2.up * jumpForce * 1.5f);
-                Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                rb.AddForce(Vector2.up * jumpForce * 1.0f);
+                float horizontalVelocity = Mathf.Clamp(new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude, 10, 30);
+                Debug.Log(horizontalVelocity);
                 rb.velocity.Set(0, rb.velocity.y, 0);
-                rb.AddForce(orientation.forward * jumpForce * .2f * horizontalVelocity.magnitude);
+                rb.AddForce(orientation.forward * jumpForce * .1f * horizontalVelocity);
                
             }
             
@@ -354,11 +463,13 @@ public class PlayerMovement : MonoBehaviour {
         {
             rb.AddForce(moveSpeed * orientation.transform.forward * Time.deltaTime * -mag.y * counterMovement);
         }
-        
+
+        //currentMaxSpeed = Mathf.Lerp(this.maxSpeed, minMaxSpeed, maxSpeedIncrement * Time.deltaTime);
+
         //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
-        if (Mathf.Sqrt((Mathf.Pow(rb.velocity.x, 2) + Mathf.Pow(rb.velocity.z, 2))) > maxSpeed) {
+        if (Mathf.Sqrt((Mathf.Pow(rb.velocity.x, 2) + Mathf.Pow(rb.velocity.z, 2))) > currentMaxSpeed) {
             float fallspeed = rb.velocity.y;
-            Vector3 n = rb.velocity.normalized * maxSpeed;
+            Vector3 n = rb.velocity.normalized * currentMaxSpeed;
             rb.velocity = new Vector3(n.x, fallspeed, n.z);
         }
     }
@@ -414,6 +525,7 @@ public class PlayerMovement : MonoBehaviour {
                 grounded = true;
                 cancellingGrounded = false;
                 normalVector = normal;
+                currentExtraGravity = extraGravityForce;
                 CancelInvoke(nameof(StopGrounded));
             }
         }
