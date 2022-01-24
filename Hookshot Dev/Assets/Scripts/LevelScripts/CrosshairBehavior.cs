@@ -32,7 +32,7 @@ public class CrosshairBehavior : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
-        if (Physics.Raycast(cam.position, cam.forward, out hit, distance, whatIsGrappleable) && !hit.collider.isTrigger)
+        if (Physics.SphereCast(cam.position, 1f, cam.forward, out hit, distance, whatIsGrappleable) && !hit.collider.isTrigger)
         {
             thisIm.color = hookColor;
         }

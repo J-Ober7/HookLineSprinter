@@ -16,6 +16,10 @@ public class KillPlaneBehavior : MonoBehaviour
     public GameObject deathScreen;
     private Collider playerCollider;
 
+    public ParticleSystem splashEffect;
+    public ParticleSystem waterFoamEffect;
+    public GameObject particleHolder;
+
     private bool gamePaused;
     private void Start()
     {
@@ -35,6 +39,20 @@ public class KillPlaneBehavior : MonoBehaviour
                 Time.timeScale = 1;
                 playerReset(playerCollider);  
                 deathScreen.SetActive(false);
+            }
+        }
+        else
+        {
+            // this is to clean up empty finished particles 
+            if(particleHolder.transform.childCount != 0)
+            {
+                foreach (ParticleSystem ps in particleHolder.transform.GetComponentsInChildren<ParticleSystem>())
+                {
+                    if(ps.isStopped)
+                    {
+                        Destroy(ps.gameObject, 0.3f);
+                    }
+                }
             }
         }
     }
@@ -64,9 +82,18 @@ public class KillPlaneBehavior : MonoBehaviour
             }
             
         }
+        else if(other.gameObject.transform.parent.CompareTag("Projectile"))
+        {
+            // spawn splash particles and despawn the thing that hit the water
+            ParticleSystem ps = Instantiate<ParticleSystem>(splashEffect, particleHolder.transform);
+            ps.transform.position = other.transform.position;
+            Destroy(other.transform.parent.gameObject, 0.5f);
+        }
         else
         {
-            Destroy(other.transform.parent.gameObject);
+            ParticleSystem ps = Instantiate<ParticleSystem>(waterFoamEffect, particleHolder.transform);
+            ps.transform.position = other.transform.position;
+            ps.transform.localScale = other.transform.localScale;
         }
     }
 

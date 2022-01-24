@@ -14,7 +14,8 @@ public class PlayerMovement : MonoBehaviour {
 
     //Rotation and look
     private float xRotation;
-    private float sensitivity = 50f;
+    [Range(0.0f, 100.0f)]
+    public float sensitivity = 50f;
     private float sensMultiplier = 1f;
     
     //Movement
@@ -111,7 +112,7 @@ public class PlayerMovement : MonoBehaviour {
         //crouching = Input.GetKey(KeyCode.LeftControl);
       
         //Crouching
-        if (Input.GetKeyDown(KeyCode.LeftControl) && grounded)
+        if (Input.GetKeyDown(KeyCode.LeftControl)) //&& grounded
         {
             //Debug.Log(grounded);
             StartCrouch();
@@ -168,6 +169,7 @@ public class PlayerMovement : MonoBehaviour {
             if (grounded) {
                 if (currentMaxSpeed < minMaxSpeed * 2)
                 {
+                    maxMaxSpeed = maxMaxSpeed + 15;
                     if(minMaxSpeed * 2 < maxMaxSpeed)
                     {
                         currentMaxSpeed = minMaxSpeed * 2;
@@ -231,6 +233,7 @@ public class PlayerMovement : MonoBehaviour {
 
         pole.localPosition = origPolePos;
 
+        maxMaxSpeed = maxMaxSpeed - 15;
         //transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
     }
 
@@ -300,7 +303,7 @@ public class PlayerMovement : MonoBehaviour {
 
         
         //Set max speed
-        if (crouching)
+        if (crouching && grounded)
         {
             maxMaxSpeed = maxSpeedTemp/3;
         }
@@ -386,11 +389,11 @@ public class PlayerMovement : MonoBehaviour {
             {
                 //Jumping off the hook
                 hook.HookJumpRelease();
-                rb.AddForce(Vector2.up * jumpForce * 1.0f);
+                rb.AddForce(Vector2.up * jumpForce * .7f);
                 float horizontalVelocity = Mathf.Clamp(new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude, 10, 30);
                 Debug.Log(horizontalVelocity);
                 rb.velocity.Set(0, rb.velocity.y, 0);
-                rb.AddForce(orientation.forward * jumpForce * .1f * horizontalVelocity);
+                rb.AddForce(orientation.forward * jumpForce * .08f * horizontalVelocity);
                
             }
             

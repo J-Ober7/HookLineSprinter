@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SimpleSelectedItems:
     m_Keys:
-    - Assets/Scenes/Playtest.unity
+    - Assets/Prefabs/Canvas.prefab
+    - Assets/Prefabs/KillPlane.prefab
+    - Assets/Prefabs/KillPlane.prefab.meta
+    - Assets/Scenes/Playtest Clone.unity
     - 
-    m_Values: 0000
+    m_Values: 0101010101
   RevisionSummary: 
   ChangesSearchValue: 
   SelectedHistoryRevision: 

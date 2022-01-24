@@ -95,7 +95,7 @@ public class HookThrower : MonoBehaviour
     {
         // Send out a raycast to see if what we're looking at is grapplable
         RaycastHit hit;
-        if (Physics.Raycast(guncamera.position, guncamera.forward, out hit, maxDistance, whatIsGrappleable) && !hit.collider.isTrigger)
+        if (Physics.SphereCast(guncamera.position, 1f , guncamera.forward, out hit, maxDistance, whatIsGrappleable) && !hit.collider.isTrigger)
         {
             isHooking = true;
             grapplePoint = hit.point;
