@@ -1,0 +1,21 @@
+Scale of 1-4
+
+Sound and Music 
+    Hook Reeling Noise - 4
+    Hook Impact Noise - 2
+    Footsteps - 3
+    Wind Rushing - 2
+    Music - 2
+
+Gameplay
+    Running and Jumping - 4, but jump height could be a little higher maybe?
+    Hook Swing - 4
+    Fluidity of Movement - 4
+
+Open Ended
+
+Art and Lightning
+    Was the lighting in the world too dark or too bright?
+	I thought overall the lighting looked pretty good, I didn't have any issues with it.
+    What did you think of the overall look of the game?
+	I think the fishing aesthetic is really unique and goofy, I think the viewmodels and everything were very good and fitting. The level geometry itself was pretty simple but looked clean - it might help to have more variation in color and whatnot and maybe change up themes for different levels. Crosshair looked a little rough.

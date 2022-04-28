@@ -1,0 +1,21 @@
+Scale of 1-4
+
+Sound and Music
+	Hook Reeling Noise 4
+	Hook Impact Noise 3
+	Footsteps 3
+	Wind Rushing 4
+	Music 3
+
+Gameplay
+	Running and Jumping 2
+	Hook Swing 4
+	Fluidity of Movement 2 
+
+Open Ended
+
+Art and Lightning
+	Was the lighting in the world too dark or too bright?
+lighting was just right, but i trend towards darker light
+	What did you think of the overall look of the game?
+looks cool, like the mid poly vibe

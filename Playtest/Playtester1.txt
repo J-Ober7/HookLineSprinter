@@ -1,0 +1,22 @@
+Scale of 1-4
+
+Sound and Music
+	Hook Reeling Noise 4
+	Hook Impact Noise 3
+	Footsteps 3
+	Wind Rushing 3
+	Music 2
+
+Gameplay
+	Running and Jumping 3
+	Hook Swing 4
+	Fluidity of Movement 4
+
+Open Ended
+
+Art and Lightning
+	Was the lighting in the world too dark or too bright? little dark
+
+	What did you think of the overall look of the game? 
+Good I liked the grappling hook design.
+

@@ -1,0 +1,21 @@
+Scale of 1-4
+
+Sound and Music
+    Hook Reeling Noise 3
+    Hook Impact Noise didnt hear
+    Footsteps 2
+    Wind Rushing didnt hear
+    Music 1
+
+Gameplay
+    Running and Jumping 2
+    Hook Swing 4
+    Fluidity of Movement 4
+
+Open Ended
+
+Art and Lightning
+    Was the lighting in the world too dark or too bright?
+	Too dark below the level
+    What did you think of the overall look of the game?
+	Overall look was good
