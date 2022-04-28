@@ -11,4 +11,5 @@ Built using Unity3D
 
 ## Credits
 Luke Quirion - Sound Design, Visual Design & Animation, Lighting, Gameplay Programming
+
 Jakob Ober - Movement Programming & Design, Level Design, UI Design & Programming
