@@ -111,7 +111,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// Find user input. Should put this in its own class but im lazy
+    /// Handle user input for movement.
     /// </summary>
     private void MyInput() 
     {
@@ -173,7 +173,7 @@ public class PlayerMovement : MonoBehaviour {
 
 
     /// <summary>
-    /// Starts the player crouch and begins to learp the player model to the crouched size
+    /// Starts the player crouch and begins to transform the player model to the crouched dimensions
     /// </summary>
     private void StartCrouch() 
     {
@@ -227,6 +227,11 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+
+    /// <summary>
+    /// Checks if there is room above the player for them to uncrounch
+    /// </summary>
+    /// <returns> If there is room for the player to uncrouch </returns>
     private bool checkForUncrouchSpace()
     {
         //RaycastHit hit;
@@ -244,7 +249,7 @@ public class PlayerMovement : MonoBehaviour {
 
 
     /// <summary>
-    /// Starts the player uncrouch and begins to learp the player model to the uncrouched size
+    /// Starts the player uncrouch and begins to transform the player model to the uncrouched dimensions
     /// </summary>
     private void StopCrouch() 
     {
@@ -271,13 +276,19 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// gets the magnitude of 2 values
+    /// Gets the magnitude of 2 values
     /// </summary>
     private double Magnitude2 (double x, double y)
     {
         return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
     }
 
+
+    /// <summary>
+    /// Modifies the player's maximum movement speed based off their current velocity. 
+    /// - Maximum speed increase gradually while player velocity is greater than 1/3rd their maximum speed.
+    /// - Maximum speed decreases gradually while the player velocity is less than 1/3rd their maximum speed.
+    /// </summary>
     private void Momentum()
     {
         if(rb.velocity.magnitude > currentMaxSpeed*0.35)
@@ -335,26 +346,11 @@ public class PlayerMovement : MonoBehaviour {
         //If holding jump && ready to jump, then jump
         if (readyToJump && jumping) Jump();
 
-        
-        //Set max speed
- 
-
-        //Some multipliers
         float multiplier = 1f, multiplierV = 1f;
-        
-        // Movement in air
-        if (!grounded) 
-        {
-            //multiplier = 0.8f;
-            //multiplierV = 0.8f;
-        }
-
         
         // Movement while sliding
         if (grounded && crouching)
-        {
-
-                       
+        {          
             if (crouchWalk)
             {
                 multiplierV = 1f;
@@ -371,8 +367,6 @@ public class PlayerMovement : MonoBehaviour {
             multiplierV = 3f;
         }
 
-        //Debug.Log(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplier * multiplierV);
-        //Debug.Log(orientation.transform.forward * x * moveSpeed * Time.deltaTime * multiplier);
         //Apply forces to move player
         rb.AddForce(orientation.transform.forward * y * moveSpeed * Time.deltaTime * multiplier * multiplierV);
 
@@ -387,7 +381,9 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// Function for player jumping. Handles jumping on the ground differently than jumping while hooked
+    /// Function for player jump input. 
+    /// - While not hooked to a surface, player performs a normal vertical jump.
+    /// - While hooked to a surface, the player performs 
     /// </summary>
     private void Jump() 
     {
@@ -493,7 +489,7 @@ public class PlayerMovement : MonoBehaviour {
             rb.AddForce(moveSpeed * orientation.transform.forward * Time.deltaTime * -mag.y * counterMovement);
         }
 
-        //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
+        //Limit diagonal running. 
         if (Mathf.Sqrt((Mathf.Pow(rb.velocity.x, 2) + Mathf.Pow(rb.velocity.z, 2))) > currentMaxSpeed) {
             float fallspeed = rb.velocity.y;
             Vector3 n = rb.velocity.normalized * currentMaxSpeed;
@@ -505,7 +501,7 @@ public class PlayerMovement : MonoBehaviour {
     /// Find the velocity relative to where the player is looking
     /// Useful for vectors calculations regarding movement and limiting movement
     /// </summary>
-    /// <returns></returns>
+    /// <returns> Vector2 containing the relative looking direction of the player</returns>
     public Vector2 FindVelRelativeToLook() 
     {
         float lookAngle = orientation.transform.eulerAngles.y;

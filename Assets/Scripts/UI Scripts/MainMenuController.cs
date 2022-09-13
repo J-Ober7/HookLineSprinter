@@ -7,6 +7,10 @@ public class MainMenuController : MonoBehaviour
 {
     public int demoIndex = 1;
 
+    public List<GameObject> whatToHideCredits;
+
+    public GameObject creditsScreen;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.None;
@@ -28,5 +32,15 @@ public class MainMenuController : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void ShowCredits(bool showCredits)
+    {
+        foreach(GameObject g in whatToHideCredits)
+        {
+            g.SetActive(!showCredits);
+        }
+
+        creditsScreen.SetActive(showCredits);
     }
 }

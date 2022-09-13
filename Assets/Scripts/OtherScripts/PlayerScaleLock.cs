@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DumbStoopidUnityThing : MonoBehaviour
+public class PlayerScaleLock : MonoBehaviour
 {
 
     // Start is called before the first frame update
